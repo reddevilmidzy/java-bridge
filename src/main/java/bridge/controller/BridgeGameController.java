@@ -2,6 +2,7 @@ package bridge.controller;
 
 import bridge.BridgeMaker;
 import bridge.BridgeRandomNumberGenerator;
+import bridge.OutputView;
 import bridge.model.Command;
 import bridge.model.Status;
 import bridge.service.BridgeGame;
@@ -14,12 +15,16 @@ public class BridgeGameController {
     // TODO: 이 부분 DI 적용
     private final BridgeGame bridgeGame = new BridgeGame();
     private final InputView inputView;
+    private final OutputView outputView;
 
-    public BridgeGameController(InputView inputView) {
+    public BridgeGameController(InputView inputView, OutputView outputView) {
         this.inputView = inputView;
+        this.outputView = outputView;
     }
 
     public void run() {
+        outputView.printStartMessage();
+
         String bridgeSize = inputView.readBridgeSize();
         // TODO: 검증 로직
         // TODO: 동강동강열매 먹은 듯이 컷팅
