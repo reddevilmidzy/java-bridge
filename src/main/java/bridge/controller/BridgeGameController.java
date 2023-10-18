@@ -2,11 +2,12 @@ package bridge.controller;
 
 import bridge.BridgeMaker;
 import bridge.BridgeRandomNumberGenerator;
-import bridge.OutputView;
+import bridge.model.AttemptCount;
 import bridge.model.Command;
 import bridge.model.Status;
 import bridge.service.BridgeGame;
 import bridge.view.InputView;
+import bridge.view.OutputView;
 
 import java.util.List;
 
@@ -37,10 +38,12 @@ public class BridgeGameController {
     }
 
     private void start(Integer size, List<String> bridge) {
-        for (int i = 0; i < size; i++) {
+        int current = 0;
+        while (current < size) {
             String moving = inputView.readMoving();
-            if (bridgeGame.move(Status.valueOf(bridge.get(i)), Status.valueOf(moving))) {
-                System.out.println("상태 출력");
+            if (bridgeGame.move(Status.valueOf(bridge.get(current)), Status.valueOf(moving))) {
+                outputView.printMap();
+                current++;
                 continue;
             }
             String gameCommand = inputView.readGameCommand();
@@ -51,5 +54,17 @@ public class BridgeGameController {
             }
             break;
         }
+        outputView.printResult(getSuccessStatus(size, current), AttemptCount.getCount());
+    }
+
+    private String getSuccessStatus(Integer size, Integer current) {
+        if (isSuccessful(size, current)) {
+            return "성공";
+        }
+        return "실패";
+    }
+
+    private Boolean isSuccessful(Integer size, Integer current) {
+        return size.equals(current);
     }
 }
