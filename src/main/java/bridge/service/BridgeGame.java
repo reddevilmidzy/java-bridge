@@ -1,21 +1,11 @@
-package bridge;
-
-import bridge.view.InputView;
+package bridge.service;
 
 /**
  * 다리 건너기 게임을 관리하는 클래스
  */
 public class BridgeGame {
 
-    InputView inputView;
-
-    public BridgeGame(InputView inputView) {
-        this.inputView = inputView;
-    }
-
     public void run() {
-        String bridgeSize = inputView.readBridgeSize();
-
     }
 
     /**
