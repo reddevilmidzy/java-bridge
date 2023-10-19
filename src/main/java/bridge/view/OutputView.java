@@ -1,5 +1,7 @@
 package bridge.view;
 
+import bridge.error.Error;
+
 import java.util.List;
 
 /**
@@ -39,6 +41,10 @@ public class OutputView {
 
     public void printFinal() {
         System.out.println("최종 게임 결과");
+    }
+
+    public void printError(String message) {
+        System.out.println(Error.PREFIX + " " + message);
     }
 
     private String formatBridge(List<String> bridge) {

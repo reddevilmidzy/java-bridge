@@ -1,0 +1,18 @@
+package bridge.error;
+
+public enum Error {
+    PREFIX("[ERROR]"),
+    NUMBER_FORMAT_EXCEPTION("다리 길이는 3부터 20 사이의 숫자여야 합니다."),
+    SIZE_OUT_OF_RANGE("다리 길이는 3부터 20 사이의 숫자여야 합니다.");
+
+    final String message;
+
+    Error(String message) {
+        this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return this.message;
+    }
+}

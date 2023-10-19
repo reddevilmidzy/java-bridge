@@ -6,6 +6,7 @@ import bridge.model.AttemptCount;
 import bridge.model.Command;
 import bridge.model.Status;
 import bridge.service.BridgeGame;
+import bridge.validation.BridgeSizeValidation;
 import bridge.view.InputView;
 import bridge.view.OutputView;
 
@@ -16,6 +17,7 @@ public class BridgeGameController {
 
     // TODO: 이 부분 DI 적용
     private final BridgeGame bridgeGame = new BridgeGame();
+    private ValidationController validationController;
     private final InputView inputView;
     private final OutputView outputView;
 
@@ -27,12 +29,11 @@ public class BridgeGameController {
     public void run() {
         outputView.printStartMessage();
 
-        String bridgeSize = inputView.readBridgeSize();
+        Integer size = readBridgeSize();
         // TODO: 검증 로직
         // TODO: 동강동강열매 먹은 듯이 컷팅
-        int size = Integer.parseInt(bridgeSize);
         BridgeMaker bridgeMaker = new BridgeMaker(new BridgeRandomNumberGenerator());
-        List<Status> bridge = convertStatus(bridgeMaker.makeBridge(Integer.parseInt(bridgeSize)));
+        List<Status> bridge = convertStatus(bridgeMaker.makeBridge(size));
         System.out.println("bridge = " + bridge);
         start(size, bridge);
     }
@@ -79,6 +80,17 @@ public class BridgeGameController {
         }
         outputView.printMap(upperBridge);
         outputView.printMap(lowerBridge);
+    }
+
+    private Integer readBridgeSize() {
+        String value = inputView.readBridgeSize();
+        this.validationController = new ValidationController(outputView, new BridgeSizeValidation());
+        try {
+            this.validationController.validate(value);
+        } catch (IllegalArgumentException e) {
+            return readBridgeSize();
+        }
+        return Integer.parseInt(value);
     }
 
     private String getSuccessStatus(Status bridge, Boolean isUpper) {
