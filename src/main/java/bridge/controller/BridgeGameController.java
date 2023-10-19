@@ -7,6 +7,7 @@ import bridge.model.Command;
 import bridge.model.Status;
 import bridge.service.BridgeGame;
 import bridge.validation.BridgeSizeValidation;
+import bridge.validation.GameCommandValidation;
 import bridge.validation.MovingValidation;
 import bridge.view.InputView;
 import bridge.view.OutputView;
@@ -45,13 +46,14 @@ public class BridgeGameController {
                 current++;
                 continue;
             }
-            String gameCommand = inputView.readGameCommand();
-            if (Command.valueOf(gameCommand).equals(Command.R)) {
+            Command gameCommand = readGameCommand();
+            if (gameCommand.equals(Command.R)) {
                 bridgeGame.retry();
                 start(size, bridge);
                 return;
+            } else if (gameCommand.equals(Command.Q)) {
+                break;
             }
-            break;
         }
         outputView.printResult(getResult(size, current), AttemptCount.getCount());
     }
@@ -99,6 +101,17 @@ public class BridgeGameController {
             return readMoving();
         }
         return Status.valueOf(moving);
+    }
+
+    private Command readGameCommand() {
+        String gameCommand = inputView.readGameCommand();
+        this.validationController = new ValidationController(outputView, new GameCommandValidation());
+        try {
+            this.validationController.validate(gameCommand);
+        } catch (IllegalArgumentException e) {
+            return readGameCommand();
+        }
+        return Command.valueOf(gameCommand);
     }
 
     private String getSuccessStatus(Status bridge, Boolean isUpper) {
