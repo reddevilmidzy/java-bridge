@@ -9,6 +9,7 @@ import bridge.service.BridgeGame;
 import bridge.view.InputView;
 import bridge.view.OutputView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BridgeGameController {
@@ -31,18 +32,18 @@ public class BridgeGameController {
         // TODO: 동강동강열매 먹은 듯이 컷팅
         int size = Integer.parseInt(bridgeSize);
         BridgeMaker bridgeMaker = new BridgeMaker(new BridgeRandomNumberGenerator());
-        List<String> bridge = bridgeMaker.makeBridge(Integer.parseInt(bridgeSize));
-
+        List<Status> bridge = convertStatus(bridgeMaker.makeBridge(Integer.parseInt(bridgeSize)));
         System.out.println("bridge = " + bridge);
         start(size, bridge);
     }
 
-    private void start(Integer size, List<String> bridge) {
+    private void start(Integer size, List<Status> bridge) {
         int current = 0;
         while (current < size) {
+            //TODO: 여기도 Status 로 바꾸는 메서드 만들기
             String moving = inputView.readMoving();
-            if (bridgeGame.move(Status.valueOf(bridge.get(current)), Status.valueOf(moving))) {
-                outputView.printMap();
+            printMap(bridge, current, bridgeGame.move(bridge.get(current), Status.valueOf(moving)));
+            if (bridgeGame.move(bridge.get(current), Status.valueOf(moving))) {
                 current++;
                 continue;
             }
@@ -54,10 +55,62 @@ public class BridgeGameController {
             }
             break;
         }
-        outputView.printResult(getSuccessStatus(size, current), AttemptCount.getCount());
+        outputView.printResult(getResult(size, current), AttemptCount.getCount());
     }
 
-    private String getSuccessStatus(Integer size, Integer current) {
+    private void printMap(List<Status> bridge, Integer current, Boolean isSuccess) {
+        List<String> upperBridge = new ArrayList<>();
+        List<String> lowerBridge = new ArrayList<>();
+        for (int i = 0; i < current; i++) {
+            upperBridge.add(getSuccessStatus(bridge.get(i), true));
+            lowerBridge.add(getSuccessStatus(bridge.get(i), false));
+        }
+
+        // TODO: 여기 코드 변경하기
+        if (isSuccess) {
+            upperBridge.add(getSuccessStatus(bridge.get(current), true));
+            lowerBridge.add(getSuccessStatus(bridge.get(current), false));
+        } else {
+            upperBridge.add(getFailureStatus(bridge.get(current), true));
+            lowerBridge.add(getFailureStatus(bridge.get(current), false));
+        }
+        if (current.equals(bridge.size())) {
+            outputView.printFinal();
+        }
+        outputView.printMap(upperBridge);
+        outputView.printMap(lowerBridge);
+    }
+
+    private String getSuccessStatus(Status bridge, Boolean isUpper) {
+        if (bridge.equals(Status.U) && isUpper) {
+            return "O";
+        }
+        if (bridge.equals(Status.D) && !isUpper) {
+            return "O";
+        }
+        return " ";
+    }
+
+    private String getFailureStatus(Status bridge, Boolean isUpper) {
+        if (bridge.equals(Status.U) && isUpper) {
+            return " ";
+        }
+        if (bridge.equals(Status.D) && !isUpper) {
+            return " ";
+        }
+        return "X";
+    }
+
+
+    private List<Status> convertStatus(List<String> bridge) {
+        List<Status> result = new ArrayList<>();
+        for (String current : bridge) {
+            result.add(Status.valueOf(current));
+        }
+        return result;
+    }
+
+    private String getResult(Integer size, Integer current) {
         if (isSuccessful(size, current)) {
             return "성공";
         }
