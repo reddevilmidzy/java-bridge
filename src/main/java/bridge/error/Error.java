@@ -3,6 +3,7 @@ package bridge.error;
 public enum Error {
     PREFIX("[ERROR]"),
     NUMBER_FORMAT_EXCEPTION("다리 길이는 3부터 20 사이의 숫자여야 합니다."),
+    MOVING_FORMAT_EXCEPTION("이동할 칸은 U 혹은 D 여야 합니다."),
     SIZE_OUT_OF_RANGE("다리 길이는 3부터 20 사이의 숫자여야 합니다.");
 
     final String message;

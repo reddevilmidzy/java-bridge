@@ -7,6 +7,7 @@ import bridge.model.Command;
 import bridge.model.Status;
 import bridge.service.BridgeGame;
 import bridge.validation.BridgeSizeValidation;
+import bridge.validation.MovingValidation;
 import bridge.view.InputView;
 import bridge.view.OutputView;
 
@@ -28,10 +29,7 @@ public class BridgeGameController {
 
     public void run() {
         outputView.printStartMessage();
-
         Integer size = readBridgeSize();
-        // TODO: 검증 로직
-        // TODO: 동강동강열매 먹은 듯이 컷팅
         BridgeMaker bridgeMaker = new BridgeMaker(new BridgeRandomNumberGenerator());
         List<Status> bridge = convertStatus(bridgeMaker.makeBridge(size));
         System.out.println("bridge = " + bridge);
@@ -41,10 +39,9 @@ public class BridgeGameController {
     private void start(Integer size, List<Status> bridge) {
         int current = 0;
         while (current < size) {
-            //TODO: 여기도 Status 로 바꾸는 메서드 만들기
-            String moving = inputView.readMoving();
-            printMap(bridge, current, bridgeGame.move(bridge.get(current), Status.valueOf(moving)));
-            if (bridgeGame.move(bridge.get(current), Status.valueOf(moving))) {
+            Status moving = readMoving();
+            printMap(bridge, current, bridgeGame.move(bridge.get(current), moving));
+            if (bridgeGame.move(bridge.get(current), moving)) {
                 current++;
                 continue;
             }
@@ -91,6 +88,17 @@ public class BridgeGameController {
             return readBridgeSize();
         }
         return Integer.parseInt(value);
+    }
+
+    private Status readMoving() {
+        String moving = inputView.readMoving();
+        this.validationController = new ValidationController(outputView, new MovingValidation());
+        try {
+            this.validationController.validate(moving);
+        } catch (IllegalArgumentException e) {
+            return readMoving();
+        }
+        return Status.valueOf(moving);
     }
 
     private String getSuccessStatus(Status bridge, Boolean isUpper) {
